@@ -12,9 +12,8 @@ import (
 
 func main() {
 	// Create the .dircache
-	// This should really be testing for the existence of not just
-	// .dircache but DB_ENVIRONMENT, which defaults to ".dircache/objects"
-	// I should really fix this, it's bad form.
+	// This returns an error if the .dircache already exists, because the user
+	// shouldnt' do that.
 	err := os.Mkdir(".dircache", 0700)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "unable to create .dircache: %s", err)
@@ -25,8 +24,6 @@ func main() {
 	// That has advantages: you can save space by sharing all the SHA1 objects.
 	// On the other hand, it might just make lookup slower and messier. You
 	// be the judge.
-
-	// Use DB_ENVIRONMENT env var if it exists and is valid
 	sha1_dir := os.Getenv("DB_ENVIRONMENT")
 	if sha1_dir != "" {
 		s, err := os.Stat(sha1_dir)

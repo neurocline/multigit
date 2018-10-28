@@ -22,17 +22,13 @@ func main() {
 		usage("cat-file: cat-file <sha1>")
 	}
 
-	// test
-	s := sha1_to_hex(sha1)
-	fmt.Printf("Saw %s, got %s\n", os.Args[1], s)
-
 	// Read the content-named object from the object database
 	buf, filetype := read_sha1_file(sha1)
 	if buf == nil {
 		os.Exit(1)
 	}
 
-	// Write the object contents to a tempfile
+	// Write the object contents to a new temp file
 	tempfile, err := ioutil.TempFile(".", "temp_git_file_")
 	if err != nil {
 		usage("unable to create tempfile")
@@ -45,6 +41,6 @@ func main() {
 		filetype = "bad"
 	}
 
-	// Output tempfile name and type of object
+	// Show user the tempfile name and type of object
 	fmt.Printf("%s: %s\n", tempname, filetype)
 }
