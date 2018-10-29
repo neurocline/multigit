@@ -91,7 +91,7 @@ static int index_fd(const char *path, int namelen, struct cache_entry *ce, int f
 
 	/*
 	 * ASCII size + nul byte
-	 */	
+	 */
 	stream.next_in = metadata;
 	stream.avail_in = 1+sprintf(metadata, "blob %lu", (unsigned long) st->st_size);
 	stream.next_out = out;
@@ -108,7 +108,7 @@ static int index_fd(const char *path, int namelen, struct cache_entry *ce, int f
 		/*nothing */;
 
 	deflateEnd(&stream);
-	
+
 	SHA1_Init(&c);
 	SHA1_Update(&c, out, stream.total_out);
 	SHA1_Final(ce->sha1, &c);
@@ -185,7 +185,7 @@ static int write_cache(int newfd, struct cache_entry **cache, int entries)
 			return -1;
 	}
 	return 0;
-}		
+}
 
 /*
  * We fundamentally don't like some paths: we don't want
@@ -194,7 +194,7 @@ static int write_cache(int newfd, struct cache_entry **cache, int entries)
  * are hidden, for chist sake.
  *
  * Also, we don't want double slashes or slashes at the
- * end that can make pathnames ambiguous. 
+ * end that can make pathnames ambiguous.
  */
 static int verify_path(char *path)
 {
@@ -219,11 +219,13 @@ int main(int argc, char **argv)
 {
 	int i, newfd, entries;
 
+    fprintf(stderr, "About to read the cache\n");
 	entries = read_cache();
 	if (entries < 0) {
 		perror("cache corrupted");
 		return -1;
 	}
+    fprintf(stderr, "Finished reading the cache\n");
 
 	newfd = open(".dircache/index.lock", O_RDWR | O_CREAT | O_EXCL, 0600);
 	if (newfd < 0) {

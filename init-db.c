@@ -20,12 +20,12 @@ int main(int argc, char **argv)
 	sha1_dir = getenv(DB_ENVIRONMENT);
 	if (sha1_dir) {
         if (internal_is_dir(sha1_dir))
-			return;
+			return 0;
 		fprintf(stderr, "DB_ENVIRONMENT set to bad directory %s: ", sha1_dir);
 	}
 
 	/*
-	 * The default case is to have a DB per managed directory. 
+	 * The default case is to have a DB per managed directory.
 	 */
 	sha1_dir = DEFAULT_DB_ENVIRONMENT;
 	fprintf(stderr, "defaulting to private storage area\n");

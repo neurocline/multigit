@@ -4,7 +4,7 @@
 #pragma once
 
 // Cross-platform helpers
-int internal_mkstemp(char* pattern); // linux mkstemp clone
+int internal_mkstemp(char* template); // linux mkstemp clone
 unsigned long internal_write(int fd, void* buf, unsigned long size); // linux write clone
 
 // See http://man7.org/linux/man-pages/man2/access.2.html

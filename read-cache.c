@@ -189,13 +189,19 @@ static int verify_hdr(struct cache_header *hdr, unsigned long size)
 	SHA_CTX c;
 	unsigned char sha1[20];
 
+    fprintf(stderr, "Enter verify_hdr\n");
+    fprintf(stderr, "hdr=%p\n", (void*) hdr);
 	if (hdr->signature != CACHE_SIGNATURE)
 		return error("bad signature");
 	if (hdr->version != 1)
 		return error("bad version");
+    fprintf(stderr, "About to SHA1_Init\n");
 	SHA1_Init(&c);
+    fprintf(stderr, "About to SHA1_Update header\n");
 	SHA1_Update(&c, hdr, offsetof(struct cache_header, sha1));
+    fprintf(stderr, "About to SHA1_Update remaining data\n");
 	SHA1_Update(&c, hdr+1, size - sizeof(*hdr));
+    fprintf(stderr, "About to SHA1_Final\n");
 	SHA1_Final(sha1, &c);
 	if (memcmp(sha1, hdr->sha1, 20))
 		return error("bad header sha1");
@@ -223,21 +229,28 @@ int read_cache(void)
 	if (fd < 0)
 		return (errno == ENOENT) ? 0 : error("open failed");
 
+    fprintf(stderr, "About to mmap\n");
 	map = (void *)-1;
 	if (!fstat(fd, &st)) {
 		map = NULL;
 		size = st.st_size;
 		errno = EINVAL;
-		if (size > sizeof(struct cache_header))
+        fprintf(stderr, "Calling mmap size=%ld\n", st.st_size);
+		if (size >= sizeof(struct cache_header))
+        {
 			map = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+            fprintf(stderr, "Got map=%p errno=%d\n", map, errno);
+        }
 	}
 	close(fd);
 	if (-1 == (int)(long)map)
 		return error("mmap failed");
+    fprintf(stderr, "Finished mmap\n");
 
 	hdr = map;
 	if (verify_hdr(hdr, size) < 0)
 		goto unmap;
+    fprintf(stderr, "Successfully verified header\n");
 
 	active_nr = hdr->entries;
 	active_alloc = alloc_nr(active_nr);

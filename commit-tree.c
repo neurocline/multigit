@@ -35,7 +35,7 @@ static void add_buffer(char **bufp, unsigned int *sizep, const char *fmt, ...)
 	alloc = (size + 32767) & ~32767;
 	buf = *bufp;
 	if (newsize > alloc) {
-		alloc = (newsize + 32767) & ~32767;   
+		alloc = (newsize + 32767) & ~32767;
 		buf = realloc(buf, alloc);
 		*bufp = buf;
 	}
@@ -174,21 +174,21 @@ int fill_commit_info(struct commit_info* info)
 	pw = getpwuid(getuid());
 	if (!pw)
 		return 0;
-	realgecos = pw->pw_gecos;
+	info->realgecos = pw->pw_gecos;
 	len = strlen(pw->pw_name);
-	memcpy(realemail, pw->pw_name, len);
-	realemail[len] = '@';
-	gethostname(realemail+len+1, sizeof(realemail)-len-1);
+	memcpy(info->realemail, pw->pw_name, len);
+	info->realemail[len] = '@';
+	gethostname(info->realemail+len+1, sizeof(info->realemail)-len-1);
 	time(&now);
-	realdate = ctime(&now);
+	info->realdate = ctime(&now);
 
-	gecos = getenv("COMMITTER_NAME") ? : realgecos;
-	email = getenv("COMMITTER_EMAIL") ? : realemail;
-	date = getenv("COMMITTER_DATE") ? : realdate;
+	info->gecos = getenv("COMMITTER_NAME"); if (!info->gecos) info->gecos = info->realgecos;
+	info->email = getenv("COMMITTER_EMAIL"); if (!info->email) info->email = info->realemail;
+	info->date = getenv("COMMITTER_DATE"); if (!info->date) info->date = info->realdate;
 
-	remove_special(gecos); remove_special(realgecos);
-	remove_special(email); remove_special(realemail);
-	remove_special(date); remove_special(realdate);
+	remove_special(info->gecos); remove_special(info->realgecos);
+	remove_special(info->email); remove_special(info->realemail);
+	remove_special(info->date); remove_special(info->realdate);
 
     return 1;
 }

@@ -1,5 +1,8 @@
 # Text files have auto line endings
 * text=auto
 
+# Makefile is LF
+Makefile text eol=lf
+
 # Go source files always have LF line endings
 *.go text eol=lf
