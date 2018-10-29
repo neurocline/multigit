@@ -1,0 +1,6 @@
+/*.exe
+/build/
+/.dircache/
+/bin/premake5.exe
+/bin/premake5
+/bin/premake5-mac

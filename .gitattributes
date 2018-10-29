@@ -1,0 +1,8 @@
+# Text files have auto line endings
+* text=auto
+
+# Keep all source files in LF too? They seemed to compile
+# with CRLF, at least under WSL.
+
+# Makefile is LF
+Makefile text eol=lf
