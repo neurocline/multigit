@@ -8,11 +8,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <errno.h>
-#include <sys/mman.h>
 #include <string.h>
 
-#include <openssl/sha.h>
-#include <zlib.h>
+#include "xplat.h"
 
 /*
  * Basic data structures for the directory cache
@@ -56,7 +54,7 @@ struct cache_entry {
 	unsigned int st_size;
 	unsigned char sha1[20];
 	unsigned short namelen;
-	unsigned char name[0];
+	unsigned char name[];
 };
 
 const char *sha1_file_directory;
