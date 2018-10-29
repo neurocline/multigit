@@ -7,7 +7,7 @@
 #define INODE_CHANGED   0x0010
 #define DATA_CHANGED    0x0020
 
-static int match_stat(struct cache_entry *ce, struct stat *st)
+static int match_stat(struct cache_entry *ce, struct xplat_stat *st)
 {
 	unsigned int changed = 0;
 
@@ -30,20 +30,22 @@ static int match_stat(struct cache_entry *ce, struct stat *st)
 	return changed;
 }
 
-static void show_differences(struct cache_entry *ce, struct stat *cur,
+static void show_differences(struct cache_entry *ce, struct xplat_stat *cur,
 	void *old_contents, unsigned long long old_size)
 {
+	cur; // unreferenced formal parameter
 	static char cmd[1000];
 	FILE *f;
 
 	snprintf(cmd, sizeof(cmd), "diff -u - %s", ce->name);
-	f = popen(cmd, "w");
-	fwrite(old_contents, old_size, 1, f);
-	pclose(f);
+	f = xplat_popen(cmd, "w");
+	fwrite(old_contents, (size_t) old_size, 1, f);
+	xplat_pclose(f);
 }
 
 int main(int argc, char **argv)
 {
+	argc; argv;
 	int entries = read_cache();
 	int i;
 
@@ -52,15 +54,14 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	for (i = 0; i < entries; i++) {
-		struct stat st;
+		struct xplat_stat st;
 		struct cache_entry *ce = active_cache[i];
 		int n, changed;
-		unsigned int mode;
 		unsigned long size;
 		char type[20];
 		void *new;
 
-		if (stat(ce->name, &st) < 0) {
+		if (xplat_stat((char *)ce->name, &st) < 0) {
 			printf("%s: %s\n", ce->name, strerror(errno));
 			continue;
 		}

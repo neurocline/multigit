@@ -1,7 +1,7 @@
 #include "cache.h"
 
-#include <pwd.h>
-#include <time.h>
+//#include <pwd.h>
+//#include <time.h>
 
 #define BLOCKING (1ul << 14)
 #define ORIG_OFFSET (40)
@@ -36,7 +36,7 @@ static void add_buffer(char **bufp, unsigned int *sizep, const char *fmt, ...)
 	alloc = (size + 32767) & ~32767;
 	buf = *bufp;
 	if (newsize > alloc) {
-		alloc = (newsize + 32767) & ~32767;   
+		alloc = (newsize + 32767) & ~32767;
 		buf = realloc(buf, alloc);
 		*bufp = buf;
 	}
@@ -72,7 +72,7 @@ static void finish_buffer(char *tag, char **bufp, unsigned int *sizep)
 	*sizep = size;
 }
 
-static void remove_special(char *p)
+/*static void remove_special(char *p)
 {
 	char c;
 	char *dst = p;
@@ -88,7 +88,7 @@ static void remove_special(char *p)
 		if (!c)
 			break;
 	}
-}
+}*/
 
 /*
  * Having more than two parents may be strange, but hey, there's
@@ -102,16 +102,17 @@ static void remove_special(char *p)
 
 int main(int argc, char **argv)
 {
-	int i, len;
+	int i/*, len*/;
 	int parents = 0;
 	unsigned char tree_sha1[20];
 	unsigned char parent_sha1[MAXPARENT][20];
-	char *gecos, *realgecos;
-	char *email, realemail[1000];
-	char *date, *realdate;
-	char comment[1000];
-	struct passwd *pw;
-	time_t now;
+	//char *gecos, *realgecos;
+	//char *email, realemail[1000];
+	//char *date, *realdate;
+	//char comment[1000];
+	//struct passwd *pw;
+	//time_t now;
+	struct commit_info info;
 	char *buffer;
 	unsigned int size;
 
@@ -127,7 +128,7 @@ int main(int argc, char **argv)
 	}
 	if (!parents)
 		fprintf(stderr, "Committing initial tree %s\n", argv[1]);
-	pw = getpwuid(getuid());
+/*	pw = getpwuid(getuid());
 	if (!pw)
 		usage("You don't exist. Go away!");
 	realgecos = pw->pw_gecos;
@@ -144,7 +145,9 @@ int main(int argc, char **argv)
 
 	remove_special(gecos); remove_special(realgecos);
 	remove_special(email); remove_special(realemail);
-	remove_special(date); remove_special(realdate);
+	remove_special(date); remove_special(realdate);*/
+	if (!fill_commit_info(&info))
+		usage("You don't exist. Go away!");
 
 	init_buffer(&buffer, &size);
 	add_buffer(&buffer, &size, "tree %s\n", sha1_to_hex(tree_sha1));
@@ -158,12 +161,12 @@ int main(int argc, char **argv)
 		add_buffer(&buffer, &size, "parent %s\n", sha1_to_hex(parent_sha1[i]));
 
 	/* Person/date information */
-	add_buffer(&buffer, &size, "author %s <%s> %s\n", gecos, email, date);
-	add_buffer(&buffer, &size, "committer %s <%s> %s\n\n", realgecos, realemail, realdate);
+	add_buffer(&buffer, &size, "author %s <%s> %s\n", info.gecos, info.email, info.date);
+	add_buffer(&buffer, &size, "committer %s <%s> %s\n\n", info.realgecos, info.realemail, info.realdate);
 
 	/* And add the comment */
-	while (fgets(comment, sizeof(comment), stdin) != NULL)
-		add_buffer(&buffer, &size, "%s", comment);
+	while (fgets(info.comment, sizeof(info.comment), stdin) != NULL)
+		add_buffer(&buffer, &size, "%s", info.comment);
 
 	finish_buffer("commit ", &buffer, &size);
 

@@ -1,13 +1,14 @@
 #include "cache.h"
 
-static int check_valid_sha1(unsigned char *sha1)
+static bool check_valid_sha1(unsigned char *sha1)
 {
 	char *filename = sha1_file_name(sha1);
-	int ret;
+	// int ret;
+	bool ret;
 
 	/* If we were anal, we'd check that the sha1 of the contents actually matches */
-	ret = access(filename, R_OK);
-	if (ret)
+	ret = xplat_access_R_OK(filename);
+	if (!ret)
 		perror(filename);
 	return ret;
 }
@@ -26,7 +27,8 @@ static int prepend_integer(char *buffer, unsigned val, int i)
 
 int main(int argc, char **argv)
 {
-	unsigned long size, offset, val;
+	argc; argv; // to avoid unreferenced formal parameter warning
+	unsigned long size, offset;
 	int i, entries = read_cache();
 	char *buffer;
 
@@ -42,7 +44,7 @@ int main(int argc, char **argv)
 
 	for (i = 0; i < entries; i++) {
 		struct cache_entry *ce = active_cache[i];
-		if (check_valid_sha1(ce->sha1) < 0)
+		if (!check_valid_sha1(ce->sha1))
 			exit(1);
 		if (offset + ce->namelen + 60 > size) {
 			size = alloc_nr(offset + ce->namelen + 60);

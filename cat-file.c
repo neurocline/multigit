@@ -14,10 +14,10 @@ int main(int argc, char **argv)
 	buf = read_sha1_file(sha1, type, &size);
 	if (!buf)
 		exit(1);
-	fd = mkstemp(template);
+	fd = xplat_mkstemp(template);
 	if (fd < 0)
 		usage("unable to create tempfile");
-	if (write(fd, buf, size) != size)
+	if (xplat_write(fd, buf, size) != size)
 		strcpy(type, "bad");
 	printf("%s: %s\n", template, type);
 }

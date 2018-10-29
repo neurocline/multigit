@@ -24,7 +24,7 @@ static int cache_name_pos(const char *name, int namelen)
 	while (last > first) {
 		int next = (last + first) >> 1;
 		struct cache_entry *ce = active_cache[next];
-		int cmp = cache_name_compare(name, namelen, ce->name, ce->namelen);
+		int cmp = cache_name_compare(name, namelen, (char *)ce->name, ce->namelen);
 		if (!cmp)
 			return -next-1;
 		if (cmp < 0) {
@@ -42,16 +42,17 @@ static int remove_file_from_cache(char *path)
 	if (pos < 0) {
 		pos = -pos-1;
 		active_nr--;
-		if (pos < active_nr)
+		if (pos < (int)active_nr)
 			memmove(active_cache + pos, active_cache + pos + 1, (active_nr - pos - 1) * sizeof(struct cache_entry *));
 	}
+	return 0;
 }
 
 static int add_cache_entry(struct cache_entry *ce)
 {
 	int pos;
 
-	pos = cache_name_pos(ce->name, ce->namelen);
+	pos = cache_name_pos((char *)ce->name, ce->namelen);
 
 	/* existing match? Just replace it */
 	if (pos < 0) {
@@ -67,22 +68,23 @@ static int add_cache_entry(struct cache_entry *ce)
 
 	/* Add it in.. */
 	active_nr++;
-	if (active_nr > pos)
+	if ((int)active_nr > pos)
 		memmove(active_cache + pos + 1, active_cache + pos, (active_nr - pos - 1) * sizeof(ce));
 	active_cache[pos] = ce;
 	return 0;
 }
 
-static int index_fd(const char *path, int namelen, struct cache_entry *ce, int fd, struct stat *st)
+static int index_fd(const char *path, int namelen, struct cache_entry *ce, int fd, struct xplat_stat *st)
 {
+	path; // suppress unreferenced formal parameter warning
 	z_stream stream;
-	int max_out_bytes = namelen + st->st_size + 200;
+	int max_out_bytes = namelen + (int) st->st_size + 200;
 	void *out = malloc(max_out_bytes);
 	void *metadata = malloc(namelen + 200);
-	void *in = mmap(NULL, st->st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	void *in = xplat_mmap_READ_PRIVATE(NULL, (size_t) st->st_size, fd, 0);
 	SHA_CTX c;
 
-	close(fd);
+	xplat_close(fd);
 	if (!out || (int)(long)in == -1)
 		return -1;
 
@@ -91,7 +93,7 @@ static int index_fd(const char *path, int namelen, struct cache_entry *ce, int f
 
 	/*
 	 * ASCII size + nul byte
-	 */	
+	 */
 	stream.next_in = metadata;
 	stream.avail_in = 1+sprintf(metadata, "blob %lu", (unsigned long) st->st_size);
 	stream.next_out = out;
@@ -103,12 +105,12 @@ static int index_fd(const char *path, int namelen, struct cache_entry *ce, int f
 	 * File content
 	 */
 	stream.next_in = in;
-	stream.avail_in = st->st_size;
+	stream.avail_in = (uInt) st->st_size;
 	while (deflate(&stream, Z_FINISH) == Z_OK)
 		/*nothing */;
 
 	deflateEnd(&stream);
-	
+
 	SHA1_Init(&c);
 	SHA1_Update(&c, out, stream.total_out);
 	SHA1_Final(ce->sha1, &c);
@@ -120,17 +122,17 @@ static int add_file_to_cache(char *path)
 {
 	int size, namelen;
 	struct cache_entry *ce;
-	struct stat st;
+	struct xplat_stat st;
 	int fd;
 
-	fd = open(path, O_RDONLY);
+	fd = xplat_open(path, O_RDONLY);
 	if (fd < 0) {
 		if (errno == ENOENT)
 			return remove_file_from_cache(path);
 		return -1;
 	}
-	if (fstat(fd, &st) < 0) {
-		close(fd);
+	if (xplat_fstat(fd, &st) < 0) {
+		xplat_close(fd);
 		return -1;
 	}
 	namelen = strlen(path);
@@ -138,17 +140,17 @@ static int add_file_to_cache(char *path)
 	ce = malloc(size);
 	memset(ce, 0, size);
 	memcpy(ce->name, path, namelen);
-	ce->ctime.sec = st.st_ctime;
+	ce->ctime.sec = st.st_ctim.tv_sec;
 	ce->ctime.nsec = st.st_ctim.tv_nsec;
-	ce->mtime.sec = st.st_mtime;
+	ce->mtime.sec = st.st_mtim.tv_sec;
 	ce->mtime.nsec = st.st_mtim.tv_nsec;
 	ce->st_dev = st.st_dev;
 	ce->st_ino = st.st_ino;
 	ce->st_mode = st.st_mode;
 	ce->st_uid = st.st_uid;
 	ce->st_gid = st.st_gid;
-	ce->st_size = st.st_size;
-	ce->namelen = namelen;
+	ce->st_size = (unsigned int) st.st_size;
+	ce->namelen = (unsigned short) namelen;
 
 	if (index_fd(path, namelen, ce, fd, &st) < 0)
 		return -1;
@@ -175,17 +177,17 @@ static int write_cache(int newfd, struct cache_entry **cache, int entries)
 	}
 	SHA1_Final(hdr.sha1, &c);
 
-	if (write(newfd, &hdr, sizeof(hdr)) != sizeof(hdr))
+	if (xplat_write(newfd, &hdr, sizeof(hdr)) != sizeof(hdr))
 		return -1;
 
 	for (i = 0; i < entries; i++) {
 		struct cache_entry *ce = cache[i];
 		int size = ce_size(ce);
-		if (write(newfd, ce, size) != size)
+		if (xplat_write(newfd, ce, size) != (unsigned long) size)
 			return -1;
 	}
 	return 0;
-}		
+}
 
 /*
  * We fundamentally don't like some paths: we don't want
@@ -194,7 +196,7 @@ static int write_cache(int newfd, struct cache_entry **cache, int entries)
  * are hidden, for chist sake.
  *
  * Also, we don't want double slashes or slashes at the
- * end that can make pathnames ambiguous. 
+ * end that can make pathnames ambiguous.
  */
 static int verify_path(char *path)
 {
@@ -225,7 +227,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	newfd = open(".dircache/index.lock", O_RDWR | O_CREAT | O_EXCL, 0600);
+	newfd = xplat_open(".dircache/index.lock", O_RDWR | O_CREAT | O_EXCL, 0600);
 	if (newfd < 0) {
 		perror("unable to create new cachefile");
 		return -1;
@@ -244,5 +246,5 @@ int main(int argc, char **argv)
 	if (!write_cache(newfd, active_cache, active_nr) && !rename(".dircache/index.lock", ".dircache/index"))
 		return 0;
 out:
-	unlink(".dircache/index.lock");
+	xplat_unlink(".dircache/index.lock");
 }
