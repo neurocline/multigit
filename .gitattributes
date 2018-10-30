@@ -1,0 +1,3 @@
+# Files in Git have LF line endings, with few exceptions
+* text=auto
+* text eol=lf

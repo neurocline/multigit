@@ -9,6 +9,7 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <sys/mman.h>
+#include <string.h>
 
 #include <openssl/sha.h>
 #include <zlib.h>

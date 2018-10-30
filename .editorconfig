@@ -1,0 +1,11 @@
+root = true
+
+# Default in the Git code is tabs. We'll overlook the fact that
+# many Linux programmers use 8-space tabs.
+[*]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+trim_trailing_whitespace = true
+end_of_line = lf
+insert_final_newline = true

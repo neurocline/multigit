@@ -20,12 +20,12 @@ int main(int argc, char **argv)
 	if (sha1_dir) {
 		struct stat st;
 		if (!stat(sha1_dir, &st) < 0 && S_ISDIR(st.st_mode))
-			return;
+			return 0;
 		fprintf(stderr, "DB_ENVIRONMENT set to bad directory %s: ", sha1_dir);
 	}
 
 	/*
-	 * The default case is to have a DB per managed directory. 
+	 * The default case is to have a DB per managed directory.
 	 */
 	sha1_dir = DEFAULT_DB_ENVIRONMENT;
 	fprintf(stderr, "defaulting to private storage area\n");
