@@ -1,3 +1,5 @@
-# Files in Git have LF line endings, with few exceptions
-* text=auto
-* text eol=lf
+# Text files in Git have LF line endings, with few exceptions
+* text=lf
+
+*.gz binary
+*.zip binary
