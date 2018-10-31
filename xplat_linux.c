@@ -18,8 +18,6 @@
 #include <time.h>
 #include <unistd.h> // for access, write
 
-#include <zlib.h>
-
 // ----------------------------------------------------------
 // Replacements for Linux functions
 
