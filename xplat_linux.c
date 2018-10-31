@@ -18,7 +18,6 @@
 #include <time.h>
 #include <unistd.h> // for access, write
 
-#include <openssl/sha.h>
 #include <zlib.h>
 
 // ----------------------------------------------------------
