@@ -25,34 +25,69 @@ project "reference"
 project "cat-file"
 	location "build"
 	kind "ConsoleApp"
-	files { "cat-file.c", "read-cache.c", "cache.h" }
+	links { "block-sha1", "zlib" }
+	files { "cat-file.c", "read-cache.c", "xplat_windows.c", "cache.h" }
+	filter { "system:windows" }
+		links { "ws2_32.lib" }
 
 project "commit-tree"
 	location "build"
 	kind "ConsoleApp"
-	files { "commit-tree.c", "read-cache.c", "cache.h" }
+	links { "block-sha1", "zlib" }
+	files { "commit-tree.c", "read-cache.c", "xplat_windows.c", "cache.h" }
+	filter { "system:windows" }
+		links { "ws2_32.lib" }
 
 project "init-db"
 	location "build"
 	kind "ConsoleApp"
-	files { "init-db.c" }
+	links { "block-sha1", "zlib" }
+	files { "init-db.c", "xplat_windows.c" }
+	filter { "system:windows" }
+		links { "ws2_32.lib" }
 
 project "read-tree"
 	location "build"
 	kind "ConsoleApp"
-	files { "read-tree.c", "read-cache.c", "cache.h" }
+	links { "block-sha1", "zlib" }
+	files { "read-tree.c", "read-cache.c", "xplat_windows.c", "cache.h" }
+	filter { "system:windows" }
+		links { "ws2_32.lib" }
 
 project "show-diff"
 	location "build"
 	kind "ConsoleApp"
-	files { "show-diff.c", "read-cache.c", "cache.h" }
+	links { "block-sha1", "zlib" }
+	files { "show-diff.c", "read-cache.c", "xplat_windows.c", "cache.h" }
+	filter { "system:windows" }
+		links { "ws2_32.lib" }
 
 project "update-cache"
 	location "build"
 	kind "ConsoleApp"
-	files { "update-cache.c", "read-cache.c", "cache.h" }
+	links { "block-sha1", "zlib" }
+	files { "update-cache.c", "read-cache.c", "xplat_windows.c", "cache.h" }
+	filter { "system:windows" }
+		links { "ws2_32.lib" }
 
 project "write-tree"
 	location "build"
 	kind "ConsoleApp"
-	files { "write-tree.c", "read-cache.c", "cache.h" }
+	links { "block-sha1", "zlib" }
+	files { "write-tree.c", "read-cache.c", "xplat_windows.c", "cache.h" }
+	filter { "system:windows" }
+		links { "ws2_32.lib" }
+
+project "block-sha1"
+	location "build"
+	kind "StaticLib"
+	warnings "Off"
+	files { "block-sha1/sha1.c", "block-sha1/sha1.h" }
+	filter { "system:windows" }
+		links { "ws2_32.lib" }
+
+project "zlib"
+	location "build"
+	kind "StaticLib"
+	warnings "Off"
+	files { "zlib/*.c", "zlib/*.h" }

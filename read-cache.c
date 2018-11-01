@@ -99,7 +99,7 @@ void * read_sha1_file(unsigned char *sha1, char *type, unsigned long *size)
 		xplat_close(fd);
 		return NULL;
 	}
-	map = xplat_mmap_READ_PRIVATE(NULL, st.st_size, fd, 0);
+	map = xplat_mmap_READ_PRIVATE(NULL, (size_t) st.st_size, fd, 0);
 	xplat_close(fd);
 	if (-1 == (int)(long)map)
 		return NULL;
@@ -107,7 +107,7 @@ void * read_sha1_file(unsigned char *sha1, char *type, unsigned long *size)
 	/* Get the data stream */
 	memset(&stream, 0, sizeof(stream));
 	stream.next_in = map;
-	stream.avail_in = st.st_size;
+	stream.avail_in = (uInt) st.st_size;
 	stream.next_out = (Bytef*) buffer;
 	stream.avail_out = sizeof(buffer);
 
@@ -229,7 +229,7 @@ int read_cache(void)
 	size = 0;
 	if (!xplat_fstat(fd, &st)) {
 		map = NULL;
-		size = st.st_size;
+		size = (unsigned long) st.st_size;
 		errno = EINVAL;
 		if (size >= sizeof(struct cache_header))
 			map = xplat_mmap_READ_PRIVATE(NULL, size, fd, 0);
