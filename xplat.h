@@ -10,21 +10,6 @@
 #include <stddef.h> // for size_t
 #include <stdio.h> // for FILE*
 
-// Use built-in SHA-1 always
-#include "block-sha1/sha1.h"
-
-#define SHA_CTX blk_SHA_CTX
-#define SHA1_Init blk_SHA1_Init
-#define SHA1_Update blk_SHA1_Update
-#define SHA1_Final blk_SHA1_Final
-
-// Use system zlib on Linux, otherwise use builtin
-#ifdef __linux__
-#include <zlib.h>
-#else
-#include "zlib/zlib.h"
-#endif
-
 // Include Windows headers here
 #if defined(_WIN32) && !defined(__CYGWIN__) /* Both MinGW and MSVC */
 # if !defined(_WIN32_WINNT)

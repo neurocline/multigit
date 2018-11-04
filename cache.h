@@ -8,9 +8,27 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <errno.h>
-#include <string.h>
+#include <sys/mman.h>
 
-#include "xplat.h"
+#include <string.h>
+#include <unistd.h>
+
+// Use built-in SHA-1 always
+#include "block-sha1/sha1.h"
+
+#define SHA_CTX blk_SHA_CTX
+#define SHA1_Init blk_SHA1_Init
+#define SHA1_Update blk_SHA1_Update
+#define SHA1_Final blk_SHA1_Final
+
+// Use system zlib on Linux, otherwise use builtin
+#ifdef __linux__
+#include <zlib.h>
+#else
+#include "zlib/zlib.h"
+#endif
+
+//#include "xplat.h"
 
 /*
  * Basic data structures for the directory cache

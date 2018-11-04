@@ -1,5 +1,7 @@
 #include "cache.h"
 
+#include <inttypes.h>
+
 int main(int argc, char **argv)
 {
 	unsigned char sha1[20];
@@ -14,10 +16,10 @@ int main(int argc, char **argv)
 	buf = read_sha1_file(sha1, type, &size);
 	if (!buf)
 		exit(1);
-	fd = xplat_mkstemp(template);
+	fd = mkstemp(template);
 	if (fd < 0)
 		usage("unable to create tempfile");
-	if (xplat_write(fd, buf, size) != size)
+	if (write(fd, buf, size) != (int) size)
 		strcpy(type, "bad");
 	printf("%s: %s\n", template, type);
 }

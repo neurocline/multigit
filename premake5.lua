@@ -19,14 +19,16 @@ workspace "cpcgit"
 
 project "reference"
 	location "build"
-	kind "ConsoleApp"
+	kind "None"
 	files { "*.c", "*.h" }
+	includedirs { "posix-on-win32" }
 
 project "cat-file"
 	location "build"
 	kind "ConsoleApp"
 	links { "block-sha1", "zlib" }
 	files { "cat-file.c", "read-cache.c", "xplat_windows.c", "cache.h" }
+	includedirs { "posix-on-win32" }
 	filter { "system:windows" }
 		links { "ws2_32.lib" }
 
@@ -35,6 +37,7 @@ project "commit-tree"
 	kind "ConsoleApp"
 	links { "block-sha1", "zlib" }
 	files { "commit-tree.c", "read-cache.c", "xplat_windows.c", "cache.h" }
+	includedirs { "posix-on-win32" }
 	filter { "system:windows" }
 		links { "ws2_32.lib" }
 
@@ -43,6 +46,7 @@ project "init-db"
 	kind "ConsoleApp"
 	links { "block-sha1", "zlib" }
 	files { "init-db.c", "xplat_windows.c" }
+	includedirs { "posix-on-win32" }
 	filter { "system:windows" }
 		links { "ws2_32.lib" }
 
@@ -51,6 +55,7 @@ project "read-tree"
 	kind "ConsoleApp"
 	links { "block-sha1", "zlib" }
 	files { "read-tree.c", "read-cache.c", "xplat_windows.c", "cache.h" }
+	includedirs { "posix-on-win32" }
 	filter { "system:windows" }
 		links { "ws2_32.lib" }
 
@@ -59,6 +64,7 @@ project "show-diff"
 	kind "ConsoleApp"
 	links { "block-sha1", "zlib" }
 	files { "show-diff.c", "read-cache.c", "xplat_windows.c", "cache.h" }
+	includedirs { "posix-on-win32" }
 	filter { "system:windows" }
 		links { "ws2_32.lib" }
 
@@ -67,6 +73,7 @@ project "update-cache"
 	kind "ConsoleApp"
 	links { "block-sha1", "zlib" }
 	files { "update-cache.c", "read-cache.c", "xplat_windows.c", "cache.h" }
+	includedirs { "posix-on-win32" }
 	filter { "system:windows" }
 		links { "ws2_32.lib" }
 
@@ -75,6 +82,7 @@ project "write-tree"
 	kind "ConsoleApp"
 	links { "block-sha1", "zlib" }
 	files { "write-tree.c", "read-cache.c", "xplat_windows.c", "cache.h" }
+	includedirs { "posix-on-win32" }
 	filter { "system:windows" }
 		links { "ws2_32.lib" }
 
@@ -83,6 +91,7 @@ project "block-sha1"
 	kind "StaticLib"
 	warnings "Off"
 	files { "block-sha1/sha1.c", "block-sha1/sha1.h" }
+	includedirs { "posix-on-win32" }
 	filter { "system:windows" }
 		links { "ws2_32.lib" }
 
@@ -91,3 +100,10 @@ project "zlib"
 	kind "StaticLib"
 	warnings "Off"
 	files { "zlib/*.c", "zlib/*.h" }
+	includedirs { "posix-on-win32" }
+
+project "posix-on-win32"
+	location "build"
+	kind "StaticLib"
+	files { "posix-on-win32/*.c", "posix-on-win32/*.h" }
+	includedirs { "posix-on-win32" }

@@ -1,5 +1,6 @@
 # build folder only has generated files
 /build/
+/linux/
 
 # Ignore binary tool artifacts (don't get checked in)
 /bin/premake5
