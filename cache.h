@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <sys/mman.h>
 #include <string.h>
+#include <unistd.h> // needed for close
 
 #include <openssl/sha.h>
 #include <zlib.h>

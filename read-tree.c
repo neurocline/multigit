@@ -13,21 +13,20 @@ static int unpack(unsigned char *sha1)
 		usage("expected a 'tree' node");
 	while (size) {
 		int len = strlen(buffer)+1;
-		unsigned char *sha1 = buffer + len;
+		unsigned char *sha1buf = (unsigned char *) buffer + len;
 		char *path = strchr(buffer, ' ')+1;
-		unsigned int mode;
-		if (size < len + 20 || sscanf(buffer, "%o", &mode) != 1)
+		unsigned int mode = 0666;
+		if ((int)size < len + 20 || sscanf(buffer, "%o", &mode) != 1)
 			usage("corrupt 'tree' file");
-		buffer = sha1 + 20;
+		buffer = sha1buf + 20;
 		size -= len + 20;
-		printf("%o %s (%s)\n", mode, path, sha1_to_hex(sha1));
+		printf("%o %s (%s)\n", mode, path, sha1_to_hex(sha1buf));
 	}
 	return 0;
 }
 
 int main(int argc, char **argv)
 {
-	int fd;
 	unsigned char sha1[20];
 
 	if (argc != 2)

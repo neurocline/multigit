@@ -17,42 +17,39 @@ workspace "cpcgit"
 	filter { "action:xcode* or toolset:clang*" }
 		buildoptions { "-mlzcnt" }
 
-project "reference"
+function lib_files()
+	files { "read-cache.c", "cache.h" }
+end
+
+function console_app(name, mainfile)
+	project(name)
 	location "build"
 	kind "ConsoleApp"
+	includedirs { "posix-on-win32" }
+	files { mainfile }
+end
+
+project "_Reference"
+	location "build"
+	kind "None"
 	files { "*.c", "*.h" }
 
-project "cat-file"
-	location "build"
-	kind "ConsoleApp"
-	files { "cat-file.c", "read-cache.c", "cache.h" }
+console_app("cat-file", "cat-file.c")
+	lib_files()
 
-project "commit-tree"
-	location "build"
-	kind "ConsoleApp"
-	files { "commit-tree.c", "read-cache.c", "cache.h" }
+console_app("commit-tree", "commit-tree.c")
+	lib_files()
 
-project "init-db"
-	location "build"
-	kind "ConsoleApp"
-	files { "init-db.c" }
+console_app("init-db", "init-db.c")
 
-project "read-tree"
-	location "build"
-	kind "ConsoleApp"
-	files { "read-tree.c", "read-cache.c", "cache.h" }
+console_app("read-tree", "read-tree.c")
+	lib_files()
 
-project "show-diff"
-	location "build"
-	kind "ConsoleApp"
-	files { "show-diff.c", "read-cache.c", "cache.h" }
+console_app("show-diff", "show-diff.c")
+	lib_files()
 
-project "update-cache"
-	location "build"
-	kind "ConsoleApp"
-	files { "update-cache.c", "read-cache.c", "cache.h" }
+console_app("update-cache", "update-cache.c")
+	lib_files()
 
-project "write-tree"
-	location "build"
-	kind "ConsoleApp"
-	files { "write-tree.c", "read-cache.c", "cache.h" }
+console_app("write-tree", "write-tree.c")
+	lib_files()

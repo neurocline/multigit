@@ -138,9 +138,9 @@ int main(int argc, char **argv)
 	time(&now);
 	realdate = ctime(&now);
 
-	gecos = getenv("COMMITTER_NAME") ? : realgecos;
-	email = getenv("COMMITTER_EMAIL") ? : realemail;
-	date = getenv("COMMITTER_DATE") ? : realdate;
+	gecos = getenv("COMMITTER_NAME"); if (gecos == NULL) gecos = realgecos;
+	email = getenv("COMMITTER_EMAIL"); if (email == NULL) email = realemail;
+	date = getenv("COMMITTER_DATE"); if (date == NULL) date = realdate;
 
 	remove_special(gecos); remove_special(realgecos);
 	remove_special(email); remove_special(realemail);

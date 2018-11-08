@@ -18,7 +18,7 @@ static unsigned hexval(char c)
 		return c - 'a' + 10;
 	if (c >= 'A' && c <= 'F')
 		return c - 'A' + 10;
-	return ~0;
+	return ~0U;
 }
 
 int get_sha1_hex(char *hex, unsigned char *sha1)
@@ -28,7 +28,7 @@ int get_sha1_hex(char *hex, unsigned char *sha1)
 		unsigned int val = (hexval(hex[0]) << 4) | hexval(hex[1]);
 		if (val & ~0xff)
 			return -1;
-		*sha1++ = val;
+		*sha1++ = (unsigned char) val;
 		hex += 2;
 	}
 	return 0;
@@ -60,10 +60,10 @@ char *sha1_file_name(unsigned char *sha1)
 	static char *name, *base;
 
 	if (!base) {
-		char *sha1_file_directory = getenv(DB_ENVIRONMENT) ? : DEFAULT_DB_ENVIRONMENT;
-		int len = strlen(sha1_file_directory);
+		char *sha1_file_dir = getenv(DB_ENVIRONMENT); if (sha1_file_dir == NULL) sha1_file_dir = DEFAULT_DB_ENVIRONMENT;
+		int len = strlen(sha1_file_dir);
 		base = malloc(len + 60);
-		memcpy(base, sha1_file_directory, len);
+		memcpy(base, sha1_file_dir, len);
 		memset(base+len, 0, 60);
 		base[len] = '/';
 		base[len+3] = '/';
