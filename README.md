@@ -30,3 +30,25 @@ true, but close enough), so use an builtin version of both. And, to
 be careful, make sure it can be used on Linux, by updating the Makefile
 to check for environment variables `BLK_SHA1` and `INTERNAL_ZLIB` to
 prefer the builtin versions over the system libraries.
+
+## Add Premake
+
+Using a Makefile for Windows is hard to the point of useless. Using a
+Makefile for Mac OS X is possible. However, on both platforms, the typical
+developer prefers to use Visual Studio or Xcode. So, a premake5.lua
+makefile was added that generates a Visual Studio project or an Xcode
+project on demand.
+
+Latest Premake binaries are the `bin/` directory, as archive for both
+space and convenience. Extract out the one for the platform you want to
+build on, then generate:
+
+- Windows: `bin/premake5.exe vs2017`
+- Mac OS X: `bin/premake5-mac xcode4`
+
+This generates a workspace with a number of projects, one per Git tool that
+the Linux Makefile creates. It also makes a `reference` project for ease of
+browsing all the source in the IDE.
+
+Premake can also generate a makefile on Linux (`premake5 gmake`), but there's
+little point, as we have a perfectly workable one already.
