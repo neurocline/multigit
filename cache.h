@@ -11,8 +11,21 @@
 #include <sys/mman.h>
 #include <string.h>
 
+#ifdef SHA1_BLK
+#include "block-sha1/sha1.h"
+#define SHA_CTX blk_SHA_CTX
+#define SHA1_Init blk_SHA1_Init
+#define SHA1_Update blk_SHA1_Update
+#define SHA1_Final blk_SHA1_Final
+#else
 #include <openssl/sha.h>
+#endif
+
+#ifdef BUILTIN_ZLIB
+#include "zlib/zlib.h"
+#else
 #include <zlib.h>
+#endif
 
 /*
  * Basic data structures for the directory cache

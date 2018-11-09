@@ -22,3 +22,11 @@ and modern GCC. There were several fixes needed:
 The last is not an issue building, simply a bug that I ran across while
 doing testing. I misunderstood how `update-cache` worked, and created an
 index with no files in it. This caused a segment fault when read back in.
+
+## Add builtin SHA-1 and Zlib
+
+Windows doesn't have system libraries for SHA-1 and Zlib (not precisely
+true, but close enough), so use an builtin version of both. And, to
+be careful, make sure it can be used on Linux, by updating the Makefile
+to check for environment variables `BLK_SHA1` and `INTERNAL_ZLIB` to
+prefer the builtin versions over the system libraries.
