@@ -52,3 +52,9 @@ browsing all the source in the IDE.
 
 Premake can also generate a makefile on Linux (`premake5 gmake`), but there's
 little point, as we have a perfectly workable one already.
+
+## Add posix-on-win32 porting layer
+
+Add headers and code to implement the pieces of Posix missing on Windows,
+so that the existing code builds and runs on Windows. This is imported
+from a separate project, `platforms`.

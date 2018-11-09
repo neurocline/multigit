@@ -23,13 +23,18 @@ function readcache_files()
 			links { "ws2_32.lib" }
 end
 
+-- note that this is using platforms/posix-on-win32, which
+-- is outside the multigit directory. This will be a package
+-- at some point
+
 function console_app(name, mainfile)
 	project(name)
 	location "build"
 	kind "ConsoleApp"
 	files { mainfile }
-	defines { "BUILTIN_ZLIB", "BLK_SHA1" }
-	links { "block-sha1", "zlib" }
+	defines { "BUILTIN_ZLIB", "SHA1_BLK" }
+	links { "block-sha1", "zlib", "posix-on-win32" }
+	includedirs { "../platforms/posix-on-win32" }
 end
 
 console_app("cat-file", "cat-file.c")
@@ -69,3 +74,9 @@ project "zlib"
 	kind "StaticLib"
 	warnings "Off"
 	files { "zlib/*.c", "zlib/*.h" }
+
+project "posix-on-win32"
+	location "build"
+	kind "StaticLib"
+	files { "../platforms/posix-on-win32/**" }
+	includedirs { "../platforms/posix-on-win32" }
