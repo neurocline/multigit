@@ -2,8 +2,9 @@
 
 int main(int argc, char **argv)
 {
+	argc = 0; argv = 0;
 	char *sha1_dir = getenv(DB_ENVIRONMENT), *path;
-	int len, i, fd;
+	int len, i;
 
 	if (mkdir(".dircache", 0700) < 0) {
 		perror("unable to create .dircache");

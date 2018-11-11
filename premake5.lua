@@ -35,6 +35,7 @@ function console_app(name, mainfile)
 	defines { "BUILTIN_ZLIB", "SHA1_BLK" }
 	links { "block-sha1", "zlib", "posix-on-win32" }
 	includedirs { "../platforms/posix-on-win32" }
+	--includedirs { "../platforms/include/diagnostic" }
 end
 
 console_app("cat-file", "cat-file.c")

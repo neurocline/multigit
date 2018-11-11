@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <sys/mman.h>
 #include <string.h>
+#include <unistd.h>
 
 #ifdef SHA1_BLK
 #include "block-sha1/sha1.h"
