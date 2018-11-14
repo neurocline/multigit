@@ -70,7 +70,7 @@ struct cache_entry {
 	unsigned int st_size;
 	unsigned char sha1[20];
 	unsigned short namelen;
-	unsigned char name[0];
+	unsigned char name[]; // was [0]
 };
 
 const char *sha1_file_directory;

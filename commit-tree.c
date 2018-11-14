@@ -127,7 +127,8 @@ int main(int argc, char **argv)
 	}
 	if (!parents)
 		fprintf(stderr, "Committing initial tree %s\n", argv[1]);
-	pw = getpwuid(getuid());
+	int uid = getuid();
+	pw = getpwuid(uid);
 	if (!pw)
 		usage("You don't exist. Go away!");
 	realgecos = pw->pw_gecos;
@@ -138,9 +139,15 @@ int main(int argc, char **argv)
 	time(&now);
 	realdate = ctime(&now);
 
-	gecos = getenv("COMMITTER_NAME") ? : realgecos;
-	email = getenv("COMMITTER_EMAIL") ? : realemail;
-	date = getenv("COMMITTER_DATE") ? : realdate;
+	gecos = getenv("COMMITTER_NAME");
+    if (gecos == NULL)
+        gecos = realgecos;
+	email = getenv("COMMITTER_EMAIL");
+    if (email == NULL)
+        email = realemail;
+	date = getenv("COMMITTER_DATE");
+    if (date == NULL)
+        date = realdate;
 
 	remove_special(gecos); remove_special(realgecos);
 	remove_special(email); remove_special(realemail);

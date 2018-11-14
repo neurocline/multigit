@@ -31,7 +31,7 @@ function console_app(name, mainfile)
 	project(name)
 	location "build"
 	kind "ConsoleApp"
-	files { mainfile }
+	files { mainfile, ".editorconfig" }
 	defines { "BUILTIN_ZLIB", "SHA1_BLK" }
 	links { "block-sha1", "zlib", "posix-on-win32" }
 	includedirs { "../platforms/posix-on-win32" }
@@ -62,7 +62,7 @@ console_app("write-tree", "write-tree.c")
 project "_Reference"
 	location "build"
 	kind "None"
-	files { "*.c", "*.h" }
+	files { "*.c", "*.h", ".editorconfig" }
 
 project "block-sha1"
 	location "build"
@@ -79,5 +79,5 @@ project "zlib"
 project "posix-on-win32"
 	location "build"
 	kind "StaticLib"
-	files { "../platforms/posix-on-win32/**" }
+	files { "../platforms/posix-on-win32/**", ".editorconfig" }
 	includedirs { "../platforms/posix-on-win32" }

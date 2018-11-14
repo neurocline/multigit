@@ -35,10 +35,11 @@ static void show_differences(struct cache_entry *ce, struct stat *cur,
 {
 	static char cmd[1000];
 	FILE *f;
+	cur = NULL; // unused
 
 	snprintf(cmd, sizeof(cmd), "diff -u - %s", ce->name);
 	f = popen(cmd, "w");
-	fwrite(old_contents, old_size, 1, f);
+	fwrite(old_contents, (size_t) old_size, 1, f);
 	pclose(f);
 }
 
@@ -46,6 +47,7 @@ int main(int argc, char **argv)
 {
 	int entries = read_cache();
 	int i;
+	argc = 0; argv = NULL; // unused
 
 	if (entries < 0) {
 		perror("read_cache");
@@ -55,12 +57,12 @@ int main(int argc, char **argv)
 		struct stat st;
 		struct cache_entry *ce = active_cache[i];
 		int n, changed;
-		unsigned int mode;
+		//unsigned int mode;
 		unsigned long size;
 		char type[20];
 		void *new;
 
-		if (stat(ce->name, &st) < 0) {
+		if (stat((const char*)ce->name, &st) < 0) {
 			printf("%s: %s\n", ce->name, strerror(errno));
 			continue;
 		}

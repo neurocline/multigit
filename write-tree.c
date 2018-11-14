@@ -26,9 +26,10 @@ static int prepend_integer(char *buffer, unsigned val, int i)
 
 int main(int argc, char **argv)
 {
-	unsigned long size, offset, val;
+	unsigned long size, offset;
 	int i, entries = read_cache();
 	char *buffer;
+    argc = 0; argv = NULL; // unused
 
 	if (entries <= 0) {
 		fprintf(stderr, "No file-cache to create a tree of\n");
