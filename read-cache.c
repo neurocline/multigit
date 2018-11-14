@@ -10,7 +10,7 @@ void usage(const char *err)
 	exit(1);
 }
 
-static unsigned hexval(char c)
+static unsigned int hexval(char c)
 {
 	if (c >= '0' && c <= '9')
 		return c - '0';
@@ -18,7 +18,7 @@ static unsigned hexval(char c)
 		return c - 'a' + 10;
 	if (c >= 'A' && c <= 'F')
 		return c - 'A' + 10;
-	return ~0;
+	return (unsigned int) ~0;
 }
 
 int get_sha1_hex(char *hex, unsigned char *sha1)
@@ -28,7 +28,7 @@ int get_sha1_hex(char *hex, unsigned char *sha1)
 		unsigned int val = (hexval(hex[0]) << 4) | hexval(hex[1]);
 		if (val & ~0xff)
 			return -1;
-		*sha1++ = val;
+		*sha1++ = (unsigned char) val;
 		hex += 2;
 	}
 	return 0;
@@ -60,10 +60,12 @@ char *sha1_file_name(unsigned char *sha1)
 	static char *name, *base;
 
 	if (!base) {
-		char *sha1_file_directory = getenv(DB_ENVIRONMENT) ? : DEFAULT_DB_ENVIRONMENT;
-		int len = strlen(sha1_file_directory);
+		char *sha1_file_dir = getenv(DB_ENVIRONMENT);
+		if (sha1_file_dir == NULL)
+			sha1_file_dir = DEFAULT_DB_ENVIRONMENT;
+		int len = strlen(sha1_file_dir);
 		base = malloc(len + 60);
-		memcpy(base, sha1_file_directory, len);
+		memcpy(base, sha1_file_dir, len);
 		memset(base+len, 0, 60);
 		base[len] = '/';
 		base[len+3] = '/';
@@ -84,7 +86,7 @@ void * read_sha1_file(unsigned char *sha1, char *type, unsigned long *size)
 	z_stream stream;
 	char buffer[8192];
 	struct stat st;
-	int i, fd, ret, bytes;
+	int fd, ret, bytes;
 	void *map, *buf;
 	char *filename = sha1_file_name(sha1);
 
@@ -97,7 +99,7 @@ void * read_sha1_file(unsigned char *sha1, char *type, unsigned long *size)
 		close(fd);
 		return NULL;
 	}
-	map = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	map = mmap(NULL, (size_t) st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	close(fd);
 	if (-1 == (int)(long)map)
 		return NULL;
@@ -105,8 +107,8 @@ void * read_sha1_file(unsigned char *sha1, char *type, unsigned long *size)
 	/* Get the data stream */
 	memset(&stream, 0, sizeof(stream));
 	stream.next_in = map;
-	stream.avail_in = st.st_size;
-	stream.next_out = buffer;
+	stream.avail_in = (uInt) st.st_size;
+	stream.next_out = (Bytef *) buffer;
 	stream.avail_out = sizeof(buffer);
 
 	inflateInit(&stream);
@@ -120,8 +122,8 @@ void * read_sha1_file(unsigned char *sha1, char *type, unsigned long *size)
 
 	memcpy(buf, buffer + bytes, stream.total_out - bytes);
 	bytes = stream.total_out - bytes;
-	if (bytes < *size && ret == Z_OK) {
-		stream.next_out = buf + bytes;
+	if (bytes < (int) *size && ret == Z_OK) {
+		stream.next_out = (Bytef *) buf + bytes;
 		stream.avail_out = *size - bytes;
 		while (inflate(&stream, Z_FINISH) == Z_OK)
 			/* nothing */;
@@ -145,9 +147,9 @@ int write_sha1_file(char *buf, unsigned len)
 	compressed = malloc(size);
 
 	/* Compress it */
-	stream.next_in = buf;
+	stream.next_in = (Bytef *) buf;
 	stream.avail_in = len;
-	stream.next_out = compressed;
+	stream.next_out = (Bytef *) compressed;
 	stream.avail_out = size;
 	while (deflate(&stream, Z_FINISH) == Z_OK)
 		/* nothing */;
@@ -168,7 +170,7 @@ int write_sha1_file(char *buf, unsigned len)
 int write_sha1_buffer(unsigned char *sha1, void *buf, unsigned int size)
 {
 	char *filename = sha1_file_name(sha1);
-	int i, fd;
+	int fd;
 
 	fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0666);
 	if (fd < 0)
@@ -223,10 +225,11 @@ int read_cache(void)
 	if (fd < 0)
 		return (errno == ENOENT) ? 0 : error("open failed");
 
+	size = 0;
 	map = (void *)-1;
 	if (!fstat(fd, &st)) {
 		map = NULL;
-		size = st.st_size;
+		size = (unsigned long) st.st_size;
 		errno = EINVAL;
 		if (size >= sizeof(struct cache_header))
 			map = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
@@ -244,8 +247,8 @@ int read_cache(void)
 	active_cache = calloc(active_alloc, sizeof(struct cache_entry *));
 
 	offset = sizeof(*hdr);
-	for (i = 0; i < hdr->entries; i++) {
-		struct cache_entry *ce = map + offset;
+	for (i = 0; i < (int) hdr->entries; i++) {
+		struct cache_entry *ce = (struct cache_entry *)((char*)map + offset);
 		offset = offset + ce_size(ce);
 		active_cache[i] = ce;
 	}

@@ -24,7 +24,7 @@ static int cache_name_pos(const char *name, int namelen)
 	while (last > first) {
 		int next = (last + first) >> 1;
 		struct cache_entry *ce = active_cache[next];
-		int cmp = cache_name_compare(name, namelen, ce->name, ce->namelen);
+		int cmp = cache_name_compare(name, namelen, (const char *) ce->name, ce->namelen);
 		if (!cmp)
 			return -next-1;
 		if (cmp < 0) {
@@ -42,16 +42,17 @@ static int remove_file_from_cache(char *path)
 	if (pos < 0) {
 		pos = -pos-1;
 		active_nr--;
-		if (pos < active_nr)
+		if (pos < (int) active_nr)
 			memmove(active_cache + pos, active_cache + pos + 1, (active_nr - pos - 1) * sizeof(struct cache_entry *));
 	}
+    return 0;
 }
 
 static int add_cache_entry(struct cache_entry *ce)
 {
 	int pos;
 
-	pos = cache_name_pos(ce->name, ce->namelen);
+	pos = cache_name_pos((const char *) ce->name, ce->namelen);
 
 	/* existing match? Just replace it */
 	if (pos < 0) {
@@ -67,7 +68,7 @@ static int add_cache_entry(struct cache_entry *ce)
 
 	/* Add it in.. */
 	active_nr++;
-	if (active_nr > pos)
+	if ((int) active_nr > pos)
 		memmove(active_cache + pos + 1, active_cache + pos, (active_nr - pos - 1) * sizeof(ce));
 	active_cache[pos] = ce;
 	return 0;
@@ -76,11 +77,13 @@ static int add_cache_entry(struct cache_entry *ce)
 static int index_fd(const char *path, int namelen, struct cache_entry *ce, int fd, struct stat *st)
 {
 	z_stream stream;
-	int max_out_bytes = namelen + st->st_size + 200;
+	int max_out_bytes = namelen + (int) st->st_size + 200;
 	void *out = malloc(max_out_bytes);
 	void *metadata = malloc(namelen + 200);
-	void *in = mmap(NULL, st->st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	void *in = mmap(NULL, (ssize_t) st->st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	SHA_CTX c;
+
+    path = NULL; // unused parameter
 
 	close(fd);
 	if (!out || (int)(long)in == -1)
@@ -103,7 +106,7 @@ static int index_fd(const char *path, int namelen, struct cache_entry *ce, int f
 	 * File content
 	 */
 	stream.next_in = in;
-	stream.avail_in = st->st_size;
+	stream.avail_in = (uInt) st->st_size;
 	while (deflate(&stream, Z_FINISH) == Z_OK)
 		/*nothing */;
 
@@ -147,8 +150,8 @@ static int add_file_to_cache(char *path)
 	ce->st_mode = st.st_mode;
 	ce->st_uid = st.st_uid;
 	ce->st_gid = st.st_gid;
-	ce->st_size = st.st_size;
-	ce->namelen = namelen;
+	ce->st_size = (unsigned int) st.st_size;
+	ce->namelen = (unsigned short) namelen;
 
 	if (index_fd(path, namelen, ce, fd, &st) < 0)
 		return -1;
